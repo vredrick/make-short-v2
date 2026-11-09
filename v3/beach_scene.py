@@ -114,7 +114,9 @@ for k in ('i1', 'i2', 'i3', 'i4'):
     CH[k].hold(f0, None); put(k, f0, OFF, 0)
 put('s1', f0, W(-0.6, 4.2), math.pi * 0.08); CH['s1'].pose(f0, 'idle', dur=1); CH['s1'].face(f0, 'smug')
 put('s2', f0, W(0.9, 4.6), -math.pi * 0.08); CH['s2'].pose(f0, 'idle', dur=1); CH['s2'].face(f0, 'neutral')
-CH['s1'].react(338, 'cheer'); CH['s2'].react(346, 'cheer'); CH['s1'].react(392, 'proud_puff', hold=12); CH['s2'].react(400, 'nod')
+CH['s1'].react(338, 'cheer'); CH['s2'].react(346, 'cheer')
+put('s1', 392, W(-0.6, 4.2), math.pi - 0.2); put('s2', 392, W(0.9, 4.6), math.pi + 0.15)
+CH['s1'].react(398, 'cheer'); CH['s2'].react(404, 'cheer'); CH['s1'].react(428, 'proud_puff', hold=12)
 ship.location = ship_home + Vector((-4, -6, 0)); ship.keyframe_insert('location', frame=330)
 ship.location = ship_home + Vector((18, 6, 0)); ship.keyframe_insert('location', frame=449)
 for fc in chars._fcurves(ship):
@@ -123,36 +125,60 @@ for fc in chars._fcurves(ship):
 for c in CH.values():
     if c.layers is not None: c.bake(0, END)
 
-# ---------------------------------------------------------------- camera (cuts are hard: CONSTANT at shot boundaries)
+# ---------------------------------------------------------------- camera: sub-shots, auto-framed on the real head positions (lesson 6/8)
 cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); sc.collection.objects.link(cam); sc.camera = cam
-cam.data.clip_end = 600; cam.data.clip_start = 0.05; cam.data.sensor_width = 36; cam.data.sensor_fit = 'HORIZONTAL'
+cam.data.clip_end = 900; cam.data.clip_start = 0.05; cam.data.sensor_width = 36; cam.data.sensor_fit = 'HORIZONTAL'
 cam.data.dof.use_dof = False
-CAM = {   # shot: [(frame, pos(local), target(local), lens, roll_deg)]
-    'b1': [(0, (1.0, -3.4, 1.0), (1.5, 4.0, 1.25), 27, -2), (89, (1.2, -2.8, 0.95), (1.6, 4.0, 1.3), 29, 1)],
-    'b2': [(90, (-0.3, -4.9, 1.1), (-0.3, 2.0, 0.95), 24, 2), (150, (-0.2, -4.6, 1.05), (0.0, 2.0, 0.95), 25, -1), (209, (0.6, -3.8, 1.2), (1.8, 4.0, 0.9), 24, -3)],
-    'b3': [(210, (0.0, -0.5, 1.05), (0.0, 14.0, 1.7), 26, 0), (329, (0.0, 0.2, 1.0), (0.3, 14.0, 1.7), 28, 1)],
-    'b4': [(330, (0.2, 1.5, 1.05), (2.0, 20.0, 2.0), 26, 2), (449, (0.4, 1.9, 1.0), (3.0, 20.0, 2.0), 27, -1)],
-}
-for sid, keys in CAM.items():
-    for f, p, t, lens, roll in keys:
-        pw, tw = Vector(W(*p)), Vector(W(*t))
-        q = (tw - pw).to_track_quat('-Z', 'Y'); e = q.to_euler(); e.rotate_axis('Z', math.radians(roll))
-        cam.location = pw; cam.rotation_euler = e; cam.data.lens = lens
-        cam.keyframe_insert('location', frame=f); cam.keyframe_insert('rotation_euler', frame=f); cam.data.keyframe_insert('lens', frame=f)
-cuts = [s['f_in'] for s in SHOTS[1:]]
+# (f_in, f_out, kind, ...):  'front', [chars], d_in, d_out, height_over_head, side_deg, lens   |   'man', p_in, t_in, p_out, t_out, lens  (set-local)
+SUB = [
+    (0, 28, 'man', (1.0, -4.3, 1.25), (1.6, 4.0, 1.35), (1.1, -3.9, 1.2), (1.6, 4.0, 1.35), 26),
+    (28, 90, 'front', ['hart', 's1'], 2.3, 1.95, 0.02, 22, 32),
+    (90, 128, 'front', ['i1', 'i3'], 2.7, 2.4, 0.0, -18, 30),
+    (128, 158, 'front', ['hart'], 1.9, 1.75, 0.0, 15, 32),
+    (158, 210, 'man', (-0.4, -4.6, 1.35), (1.4, 4.0, 0.9), (0.2, -4.2, 1.3), (2.4, 5.0, 0.9), 24),
+    (210, 268, 'front', ['i2', 'i3'], 2.5, 2.15, 0.02, 12, 30),
+    (268, 330, 'man', (0.2, -0.2, 1.3), (0.6, 20.0, 2.0), (0.2, 0.7, 1.25), (0.5, 20.0, 2.0), 27),
+    (330, 392, 'front', ['s1', 's2'], 2.6, 2.25, 0.02, 8, 30),
+    (392, 450, 'man', (0.1, 1.2, 1.3), (3.0, 22.0, 2.0), (0.2, 1.7, 1.25), (4.0, 22.0, 2.0), 26),
+]
+
+
+def head(k, f):
+    sc.frame_set(f); return CH[k].root.matrix_world.translation.copy(), bpy.data.objects[CH[k].name + '_skull'].matrix_world.translation.copy(), CH[k].root.matrix_world.to_euler().z
+
+
+def key_cam(f, pw, tw, lens, roll=0.0):
+    q = (tw - pw).to_track_quat('-Z', 'Y'); e = q.to_euler(); e.rotate_axis('Z', math.radians(roll))
+    cam.location = pw; cam.rotation_euler = e; cam.data.lens = lens
+    cam.keyframe_insert('location', frame=f); cam.keyframe_insert('rotation_euler', frame=f); cam.data.keyframe_insert('lens', frame=f)
+
+
+for f_in, f_out, kind, *a in SUB:
+    if kind == 'man':
+        p0, t0, p1, t1, lens = a
+        key_cam(f_in, Vector(W(*p0)), Vector(W(*t0)), lens); key_cam(f_out - 1, Vector(W(*p1)), Vector(W(*t1)), lens)
+    else:
+        ks, d0, d1, hz, side, lens = a
+        for f, d in ((f_in, d0), (f_out - 1, d1)):
+            hs = [head(k, f_in) for k in ks]
+            ctr = sum((h[1] for h in hs), Vector()) / len(hs)
+            yaw = hs[0][2] + math.radians(side)
+            fwd = Vector((math.sin(yaw), -math.cos(yaw), 0))     # rot_z 0 faces -Y
+            pw = ctr + fwd * d + Vector((0, 0, hz)); tw = ctr + Vector((0, 0, -0.12))
+            key_cam(f, pw, tw, lens)
+cuts = [s_[0] for s_ in SUB[1:]]
 for fc in chars._fcurves(cam) + chars._fcurves(cam.data):
     for kp in fc.keyframe_points:
         kp.interpolation = 'CONSTANT' if int(round(kp.co[0])) + 1 in cuts else 'BEZIER'
+sc.frame_set(0)
 
 # ---------------------------------------------------------------- render
 os.makedirs(OUT, exist_ok=True)
 if MODE == 'gate':
-    ids = args[2:] or [s['id'] for s in SHOTS]
-    for s in SHOTS:
-        if s['id'] not in ids: continue
-        f = (s['f_in'] + s['f_out']) // 2
-        sc.frame_set(f); sc.render.filepath = os.path.join(OUT, f"{s['id']}.png")
-        bpy.ops.render.render(write_still=True); print('GATE', s['id'], f)
+    for i, s_ in enumerate(SUB):   # one still per sub-shot, at its middle
+        f = (s_[0] + s_[1]) // 2
+        sc.frame_set(f); sc.render.filepath = os.path.join(OUT, f"g{i}_f{f:03d}.png")
+        bpy.ops.render.render(write_still=True); print('GATE', i, f)
 elif MODE == 'frames':
     a, b = int(args[2]), int(args[3])
     for f in range(a, b):
