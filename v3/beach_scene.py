@@ -105,8 +105,8 @@ for i, k in enumerate(('i1', 'i2', 'i3', 'i4')):
     put(k, f0, W(x, y), math.pi + (0.15 if i < 2 else -0.15)); CH[k].pose(f0, 'idle', dur=1); CH[k].face(f0, 'determined')
     cl = CLUBS[k]; cl.location = (0, 0, 0); CH[k].hold(f0, cl)
 CH['i2'].react(250, 'lookaround'); CH['i3'].react(262, 'nod'); CH['i1'].react(285, 'lean_in'); CH['i4'].react(290, 'tilt')
-ship.location = ship_home + Vector((-26, 24, 0)); ship.keyframe_insert('location', frame=210)
-ship.location = ship_home + Vector((-8, -10, 0)); ship.keyframe_insert('location', frame=329)
+ship.location = ship_home + Vector((-16, 6, 0)); ship.keyframe_insert('location', frame=210)
+ship.location = ship_home + Vector((-8.5, -12, 0)); ship.keyframe_insert('location', frame=329)
 
 # ---------------------------------------------------------------- b4 (330-450): the cutter sails off, two sailors stay behind
 f0 = 330
@@ -132,12 +132,12 @@ cam.data.dof.use_dof = False
 # (f_in, f_out, kind, ...):  'front', [chars], d_in, d_out, height_over_head, side_deg, lens   |   'man', p_in, t_in, p_out, t_out, lens  (set-local)
 SUB = [
     (0, 28, 'man', (1.0, -4.3, 1.25), (1.6, 4.0, 1.35), (1.1, -3.9, 1.2), (1.6, 4.0, 1.35), 26),
-    (28, 90, 'front', ['hart', 's1'], 2.3, 1.95, 0.02, 22, 32),
+    (28, 90, 'front', ['hart', 's1'], 2.3, 1.95, 0.02, -28, 32),
     (90, 128, 'front', ['i1', 'i3'], 2.7, 2.4, 0.0, -18, 30),
     (128, 158, 'front', ['hart'], 1.9, 1.75, 0.0, 15, 32),
-    (158, 210, 'man', (-0.4, -4.6, 1.35), (1.4, 4.0, 0.9), (0.2, -4.2, 1.3), (2.4, 5.0, 0.9), 24),
+    (158, 210, 'man', (0.6, -2.4, 1.2), (1.8, 4.0, 0.85), (1.2, -1.6, 1.2), (3.0, 5.0, 0.85), 26),
     (210, 268, 'front', ['i2', 'i3'], 2.5, 2.15, 0.02, 12, 30),
-    (268, 330, 'man', (0.2, -0.2, 1.3), (0.6, 20.0, 2.0), (0.2, 0.7, 1.25), (0.5, 20.0, 2.0), 27),
+    (268, 330, 'man', (0.1, 0.4, 1.25), (0.2, 24.0, 2.6), (0.1, 1.2, 1.2), (0.3, 22.0, 2.6), 36),
     (330, 392, 'front', ['s1', 's2'], 2.6, 2.25, 0.02, 8, 30),
     (392, 450, 'man', (0.1, 1.2, 1.3), (3.0, 22.0, 2.0), (0.2, 1.7, 1.25), (4.0, 22.0, 2.0), 26),
 ]
