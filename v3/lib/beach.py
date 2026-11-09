@@ -106,12 +106,13 @@ def build_beach(c):
         x = -70 + i * 34 + rnd.uniform(-5, 5)
         sph(c, 'hill_islet', 1.0, P(x, 120 + rnd.uniform(-8, 8), -0.6), _m('islet', (0.3, 0.55, 0.32)), (rnd.uniform(9, 16), 3, 2.2), 14)
     for i, (x, y, h, ln, yaw) in enumerate(((-7.5, 1.5, 7.0, 0.22, 0.4), (-10.5, -2.5, 6.0, 0.3, 2.6), (8.5, 2.0, 6.6, 0.26, 2.9), (11.5, -3.0, 7.4, 0.2, 0.2),
-                                             (-15, 3.5, 6.2, 0.25, 1.2), (16, 1.0, 6.0, 0.3, 3.4), (-4.5, -9, 6.8, 0.18, 1.9), (5, -10, 6.3, 0.22, 2.2))):
+                                             (-15, 3.5, 6.2, 0.25, 1.2), (16, 1.0, 6.0, 0.3, 3.4), (-4.5, -9, 6.8, 0.18, 1.9), (5, -10, 6.3, 0.22, 2.2),
+                                             (-5.8, 3.0, 6.4, 0.24, 2.8), (4.0, 5.0, 6.8, 0.22, 0.3), (6.2, 1.6, 5.8, 0.28, 0.1), (-3.6, 5.6, 7.2, 0.2, 2.2))):
         palm(c, f'palm{i}', P(x, y), h, ln, yaw, seed=i)
     hut(c, 'hut0', P(-9.0, -6.5), 0.2, 1.1); hut(c, 'hut1', P(9.5, -7.5), -0.3, 1.0); hut(c, 'hut2', P(-14, -9), 0.5, 0.9)
     canoe(c, 'canoe0', P(-5.2, 4.6), 0.3); canoe(c, 'canoe1', P(-3.0, 5.4), -0.15, 0.9)
-    for i in range(14):   # shells and rocks on the sand
-        sph(c, 'rock', rnd.uniform(0.12, 0.3), P(rnd.uniform(-10, 10), rnd.uniform(-2.5, 5), 0.02), _m('stone', (0.62, 0.6, 0.58)), (1, 0.8, 0.6), 8, 0.2, i)
+    for i in range(7):   # shells and rocks on the sand
+        sph(c, 'rock', rnd.uniform(0.12, 0.3), P(rnd.uniform(-10, 10), rnd.uniform(-2.5, 5), 0.02), _m('stone', (0.5, 0.46, 0.42)), (1, 0.8, 0.6), 8, 0.2, i)
     shp = ship(c, 'cutter', P(9.0, 34.0, -0.1)); A['ship_obj'] = shp
     lb = sph(c, 'longboat', 1.0, P(4.2, 5.8, 0.15), _m('hull', (0.36, 0.2, 0.1)), (1.7, 0.6, 0.35), 14); inked(lb, 0.02); A['longboat_obj'] = lb
     # anchors (rot_z: 0 faces the camera at -Y)
