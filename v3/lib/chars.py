@@ -84,6 +84,17 @@ SPEC = {
                    stache='big', stache_col=(0.22, 0.12, 0.06), head_r=0.31, neck=(0.85, 0.1, 0.2)),
     'soldier': dict(coat=(0.42, 0.45, 0.20), hat='kepi2', hat_col=(0.40, 0.44, 0.17), body_w=0.18, trim=(0.80, 0.62, 0.20),
                     sash=(0.35, 0.22, 0.10), stache='stubble', stache_col=(0.25, 0.20, 0.15), head_r=0.30, neck=None),
+    # Ngatik (beach) cast
+    'captain': dict(coat=(0.10, 0.12, 0.22), hat='bicorne', hat_col=(0.06, 0.06, 0.08), body_w=0.20, trim=(0.92, 0.72, 0.18),
+                    sash=(0.55, 0.08, 0.08), stache='big', stache_col=(0.35, 0.2, 0.08), head_r=0.30, neck=None),
+    'sailor': dict(coat=(0.86, 0.88, 0.94), hat='cap', hat_col=(0.72, 0.12, 0.12), body_w=0.19, trim=None,
+                   sash=(0.18, 0.24, 0.42), stache='stubble', stache_col=(0.25, 0.2, 0.15), head_r=0.30, neck=None, stripes=(0.15, 0.22, 0.48)),
+    'sailor2': dict(coat=(0.24, 0.32, 0.55), hat='cap', hat_col=(0.15, 0.18, 0.3), body_w=0.2, trim=None,
+                    sash=(0.45, 0.3, 0.15), stache='small', stache_col=(0.3, 0.17, 0.08), head_r=0.30, neck=None),
+    'islander': dict(coat=(0.62, 0.36, 0.2), hat='band', hat_col=(0.85, 0.18, 0.2), body_w=0.19, trim=None,
+                     sash=None, skirt=(0.62, 0.7, 0.3), stache=None, stache_col=(0.2, 0.12, 0.06), head_r=0.30, neck=(0.95, 0.85, 0.2)),
+    'islander2': dict(coat=(0.5, 0.28, 0.15), hat='band', hat_col=(0.95, 0.85, 0.25), body_w=0.2, trim=None,
+                      sash=None, skirt=(0.78, 0.66, 0.36), stache='small', stache_col=(0.15, 0.1, 0.05), head_r=0.31, neck=None),
 }
 HEAD_SC = (1.0, 0.95, 0.92)
 EYE_X, EYE_Z, BROW_Z, MOUTH_Z = 0.105, 0.015, 0.105, -0.105
@@ -410,6 +421,22 @@ def make_char(kind, name):
         prim('tri', name + '_scarf', (0.06, 1, 0.062), (0, -bw * 0.66 - 0.012, BODY_H * 0.84), mat=_tmat('scarf', (0.85, 0.08, 0.12)), parent=torso)
     if sp.get('sash'):   # belt band wrapped round the bean
         prim('cyl', name + '_belt', (bw * 0.93, bw * 0.78, 0.022), (0, 0, BODY_H * 0.28), mat=_tmat(kind + '_belt', sp['sash']), parent=torso, seg=32)
+    if sp.get('skirt'):   # leaf / fibre skirt: a flared ring of strands round the hips
+        mSk = _tmat(kind + '_skirt', sp['skirt'])
+        prim('cone', name + '_skirt', (bw * 1.02, bw * 0.9, BODY_H * 0.16), (0, 0, BODY_H * 0.16), mat=mSk, parent=torso, ink=0.008, seg=24, r2=1.35)
+        for i in range(14):
+            a = i / 14 * 2 * math.pi
+            prim('cube', f'{name}_sks{i}', (0.006, 0.004, BODY_H * 0.15), (bw * 1.12 * math.cos(a), bw * 1.0 * math.sin(a), BODY_H * 0.13), (0, 0, a),
+                 mat=_tmat(kind + '_skd', tuple(x * 0.7 for x in sp['skirt'])), parent=torso)
+    if sp.get('stripes'):   # sailor's striped shirt
+        mSt = _tmat(kind + '_stripe', sp['stripes'])
+        for i, z in enumerate((0.42, 0.56, 0.70, 0.84)):
+            prim('cyl', f'{name}_str{i}', (bw * (1.0 - 0.25 * max(0, z - 0.6) / 0.24) * 1.005, bw * 0.86 * (1.0 - 0.25 * max(0, z - 0.6) / 0.24), 0.018), (0, 0, BODY_H * z), mat=mSt, parent=torso, seg=32)
+    if sp.get('neck') and kind.startswith('islander'):   # flower lei
+        mL = _tmat(kind + '_lei', sp['neck'])
+        for i in range(12):
+            a = i / 12 * 2 * math.pi
+            prim('sphere', f'{name}_lei{i}', (0.03, 0.03, 0.025), (bw * 0.78 * math.cos(a), bw * 0.68 * math.sin(a), BODY_H * 0.95), mat=mL, parent=torso, seg=10)
     if sp.get('trim'):
         mT = _tmat(kind + '_trim', sp['trim'])
         for i, z in enumerate((0.62, 0.50, 0.38)):
@@ -593,6 +620,19 @@ def _hat(name, sp, head, hr, mHat, mWhite):
         prim('cyl', name + '_k2band', (0.272, 0.252, 0.016), (0, 0, 0.018), mat=_tmat('k2band', (0.26, 0.28, 0.10)), parent=hatp, seg=32)
         prim('cone', name + '_vis', (0.17, 0.11, 0.011), (0, -0.25, 0.012), (D(12), 0, 0), mat=mHat, parent=hatp, ink=0.01, seg=20)
         prim('cyl', name + '_badge', (0.03, 0.03, 0.006), (0, -0.265, 0.075), (D(80), 0, 0), mat=mT, parent=hatp, ink=0.005, seg=16)
+    elif k == 'cap':     # sailor's knit cap
+        prim('sphere', name + '_knit', (0.31, 0.29, 0.17), (0, 0.02, 0.03), mat=mHat, parent=hatp, ink=INK_HAT, seg=32)
+        prim('cyl', name + '_knitb', (0.315, 0.295, 0.03), (0, 0.0, -0.02), mat=_tmat(name + '_knitb', tuple(x * 0.75 for x in sp['hat_col'])), parent=hatp, ink=0.01, seg=32)
+    elif k == 'band':    # woven headband with a flower over one ear
+        prim('cyl', name + '_band', (0.305, 0.285, 0.035), (0, 0, -0.07), (D(-6), 0, 0), mat=_tmat(name + '_bandc', (0.35, 0.55, 0.2)), parent=hatp, ink=0.008, seg=32)
+        for i in range(5):
+            a = i / 5 * 2 * math.pi
+            prim('sphere', f'{name}_pet{i}', (0.055, 0.02, 0.04), (0.26 + 0.05 * math.cos(a), -0.12, -0.02 + 0.05 * math.sin(a)), (0, a, 0), mat=mHat, parent=hatp, ink=0.005, seg=10)
+        prim('sphere', name + '_petc', (0.03, 0.025, 0.03), (0.26, -0.135, -0.02), mat=_tmat('flower_c', (1.0, 0.85, 0.2)), parent=hatp, seg=10)
+    elif k == 'bicorne':  # Hart: black bicorne with a gold trim
+        prim('sphere', name + '_bic', (0.46, 0.2, 0.17), (0, 0, 0.08), mat=mHat, parent=hatp, ink=INK_HAT, seg=32)
+        prim('sphere', name + '_bicc', (0.25, 0.22, 0.09), (0, 0, 0.0), mat=mHat, parent=hatp, ink=INK_HAT, seg=24)
+        prim('sphere', name + '_bict', (0.47, 0.205, 0.02), (0, 0, 0.21), mat=_tmat('bic_trim', sp['trim']), parent=hatp, seg=32)
     elif k == 'helmet':
         prim('sphere', name + '_hel', (0.34, 0.31, 0.19), (0, 0.0, 0.07), mat=mHat, parent=hatp, ink=INK_HAT, seg=32)
         prim('cyl', name + '_rim', (0.37, 0.34, 0.012), (0, 0, -0.03), mat=mHat, parent=hatp, ink=INK_HAT, seg=32)
