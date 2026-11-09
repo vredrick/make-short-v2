@@ -12,9 +12,9 @@ ORIGIN = (1500, 0, 0)
 _MAT = {}
 
 
-def _m(name, rgb):
+def _m(name, rgb, ink=True):
     if name not in _MAT or _MAT[name].name not in bpy.data.materials:
-        _MAT[name] = toon_mat('BCH_' + name, rgb)
+        _MAT[name] = toon_mat('BCH_' + name, rgb, ink=ink)   # ink=False for big flat ground/water (grazing angles go black otherwise)
     return _MAT[name]
 
 
@@ -91,7 +91,7 @@ def ship(c, nm, loc):
 def build_beach(c):
     o = ORIGIN; ox, oy, oz = o; P = lambda x, y, z=0: (ox + x, oy + y, oz + z)
     A = {}
-    sand, sand_w, sea, lagoon, foam = _m('sand', (0.98, 0.86, 0.6)), _m('sandwet', (0.86, 0.72, 0.5)), _m('sea', (0.08, 0.42, 0.72)), _m('lagoon', (0.2, 0.78, 0.82)), _m('foam', (1, 1, 1))
+    sand, sand_w, sea, lagoon, foam = _m('sand', (0.98, 0.86, 0.6), False), _m('sandwet', (0.86, 0.72, 0.5), False), _m('sea', (0.1, 0.5, 0.8), False), _m('lagoon', (0.25, 0.8, 0.84), False), _m('foam', (1, 1, 1), False)
     box(c, 'ground_sand', (160, 40, 0.4), P(0, -14, -0.2), sand)
     box(c, 'ground_wet', (160, 3.0, 0.4), P(0, 6.4, -0.24), sand_w)
     box(c, 'lagoon_shallow', (160, 14, 0.2), P(0, 14.5, -0.32), lagoon)
@@ -111,7 +111,7 @@ def build_beach(c):
     hut(c, 'hut0', P(-9.0, -6.5), 0.2, 1.1); hut(c, 'hut1', P(9.5, -7.5), -0.3, 1.0); hut(c, 'hut2', P(-14, -9), 0.5, 0.9)
     canoe(c, 'canoe0', P(-5.2, 4.6), 0.3); canoe(c, 'canoe1', P(-3.0, 5.4), -0.15, 0.9)
     for i in range(14):   # shells and rocks on the sand
-        sph(c, 'rock', rnd.uniform(0.12, 0.3), P(rnd.uniform(-10, 10), rnd.uniform(-6, 5), 0.02), _m('stone', (0.62, 0.6, 0.58)), (1, 0.8, 0.6), 8, 0.2, i)
+        sph(c, 'rock', rnd.uniform(0.12, 0.3), P(rnd.uniform(-10, 10), rnd.uniform(-2.5, 5), 0.02), _m('stone', (0.62, 0.6, 0.58)), (1, 0.8, 0.6), 8, 0.2, i)
     shp = ship(c, 'cutter', P(9.0, 34.0, -0.1)); A['ship_obj'] = shp
     lb = sph(c, 'longboat', 1.0, P(4.2, 5.8, 0.15), _m('hull', (0.36, 0.2, 0.1)), (1.7, 0.6, 0.35), 14); inked(lb, 0.02); A['longboat_obj'] = lb
     # anchors (rot_z: 0 faces the camera at -Y)

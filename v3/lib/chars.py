@@ -91,9 +91,9 @@ SPEC = {
                    sash=(0.18, 0.24, 0.42), stache='stubble', stache_col=(0.25, 0.2, 0.15), head_r=0.30, neck=None, stripes=(0.15, 0.22, 0.48)),
     'sailor2': dict(coat=(0.24, 0.32, 0.55), hat='cap', hat_col=(0.15, 0.18, 0.3), body_w=0.2, trim=None,
                     sash=(0.45, 0.3, 0.15), stache='small', stache_col=(0.3, 0.17, 0.08), head_r=0.30, neck=None),
-    'islander': dict(coat=(0.62, 0.36, 0.2), hat='band', hat_col=(0.85, 0.18, 0.2), body_w=0.19, trim=None,
+    'islander': dict(skin=(0.58, 0.38, 0.24), coat=(0.62, 0.36, 0.2), hat='band', hat_col=(0.85, 0.18, 0.2), body_w=0.19, trim=None,
                      sash=None, skirt=(0.62, 0.7, 0.3), stache=None, stache_col=(0.2, 0.12, 0.06), head_r=0.30, neck=(0.95, 0.85, 0.2)),
-    'islander2': dict(coat=(0.5, 0.28, 0.15), hat='band', hat_col=(0.95, 0.85, 0.25), body_w=0.2, trim=None,
+    'islander2': dict(skin=(0.47, 0.3, 0.18), coat=(0.5, 0.28, 0.15), hat='band', hat_col=(0.95, 0.85, 0.25), body_w=0.2, trim=None,
                       sash=None, skirt=(0.78, 0.66, 0.36), stache='small', stache_col=(0.15, 0.1, 0.05), head_r=0.31, neck=None),
 }
 HEAD_SC = (1.0, 0.95, 0.92)
@@ -447,7 +447,7 @@ def make_char(kind, name):
     # head
     head = empty(name + '_head', (0, 0, 0), neck)
     hc = empty(name + '_hc', (0, 0, hr * HEAD_SC[2] - 0.03), head)
-    prim('sphere', name + '_skull', tuple(hr * s for s in HEAD_SC), (0, 0, 0), mat=mWhite, parent=hc, ink=INK_HEAD, seg=40)
+    prim('sphere', name + '_skull', tuple(hr * s for s in HEAD_SC), (0, 0, 0), mat=(_tmat(kind + '_skin', sp['skin']) if sp.get('skin') else mWhite), parent=hc, ink=INK_HEAD, seg=40)
 
     # face slots on the head surface
     def surf(x, z, off=0.004):

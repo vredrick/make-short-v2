@@ -106,7 +106,7 @@ for i, k in enumerate(('i1', 'i2', 'i3', 'i4')):
     cl = CLUBS[k]; cl.location = (0, 0, 0); CH[k].hold(f0, cl)
 CH['i2'].react(250, 'lookaround'); CH['i3'].react(262, 'nod'); CH['i1'].react(285, 'lean_in'); CH['i4'].react(290, 'tilt')
 ship.location = ship_home + Vector((-26, 24, 0)); ship.keyframe_insert('location', frame=210)
-ship.location = ship_home + Vector((-8, 6, 0)); ship.keyframe_insert('location', frame=329)
+ship.location = ship_home + Vector((-8, -10, 0)); ship.keyframe_insert('location', frame=329)
 
 # ---------------------------------------------------------------- b4 (330-450): the cutter sails off, two sailors stay behind
 f0 = 330
@@ -116,7 +116,7 @@ put('s1', f0, W(-0.6, 4.2), math.pi * 0.08); CH['s1'].pose(f0, 'idle', dur=1); C
 put('s2', f0, W(0.9, 4.6), -math.pi * 0.08); CH['s2'].pose(f0, 'idle', dur=1); CH['s2'].face(f0, 'neutral')
 CH['s1'].react(338, 'cheer'); CH['s2'].react(346, 'cheer'); CH['s1'].react(392, 'proud_puff', hold=12); CH['s2'].react(400, 'nod')
 ship.location = ship_home + Vector((-4, -6, 0)); ship.keyframe_insert('location', frame=330)
-ship.location = ship_home + Vector((30, 8, 0)); ship.keyframe_insert('location', frame=449)
+ship.location = ship_home + Vector((18, 6, 0)); ship.keyframe_insert('location', frame=449)
 for fc in chars._fcurves(ship):
     for kp in fc.keyframe_points: kp.interpolation = 'LINEAR'
 
@@ -128,10 +128,10 @@ cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); sc.collection.ob
 cam.data.clip_end = 600; cam.data.clip_start = 0.05; cam.data.sensor_width = 36; cam.data.sensor_fit = 'HORIZONTAL'
 cam.data.dof.use_dof = False
 CAM = {   # shot: [(frame, pos(local), target(local), lens, roll_deg)]
-    'b1': [(0, (1.0, -7.2, 1.15), (2.0, 2.0, 1.35), 22, -3), (89, (1.4, -5.9, 1.0), (2.1, 2.0, 1.4), 24, 2)],
-    'b2': [(90, (-0.4, -7.6, 1.5), (-0.4, 1.0, 0.9), 20, 3), (150, (-0.2, -7.0, 1.4), (-0.2, 1.4, 0.95), 21, -1), (209, (0.6, -6.4, 1.6), (1.6, 3.5, 0.9), 20, -4)],
-    'b3': [(210, (-0.2, -3.6, 1.0), (0.0, 14.0, 2.6), 22, 0), (329, (-0.1, -2.4, 0.9), (0.0, 14.0, 2.4), 24, 2)],
-    'b4': [(330, (0.2, -2.4, 1.2), (2.0, 20.0, 3.0), 22, 2), (449, (0.6, -1.6, 1.1), (6.0, 24.0, 3.0), 24, -2)],
+    'b1': [(0, (1.0, -4.6, 1.0), (1.5, 4.0, 1.25), 27, -2), (89, (1.2, -3.8, 0.95), (1.6, 4.0, 1.3), 29, 1)],
+    'b2': [(90, (-0.3, -6.0, 1.15), (-0.3, 2.0, 0.95), 24, 2), (150, (-0.2, -5.6, 1.1), (0.0, 2.0, 0.95), 25, -1), (209, (0.6, -4.6, 1.3), (1.8, 4.0, 0.9), 24, -3)],
+    'b3': [(210, (0.0, -1.6, 1.05), (0.0, 14.0, 1.7), 26, 0), (329, (0.0, -0.8, 1.0), (0.3, 14.0, 1.7), 28, 1)],
+    'b4': [(330, (0.2, 0.4, 1.05), (2.0, 20.0, 2.0), 26, 2), (449, (0.4, 0.9, 1.0), (3.0, 20.0, 2.0), 27, -1)],
 }
 for sid, keys in CAM.items():
     for f, p, t, lens, roll in keys:
