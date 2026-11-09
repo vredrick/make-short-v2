@@ -3,7 +3,7 @@
 # Length comes from shots.json (last f_out), so a 15 s Short = 450 frames. Override: FRAMES=450 ./go.sh r1
 . "$(dirname "$0")/env.sh"; cd "$HERE"
 R=${1:?usage: ./go.sh rNN}; export NATIVE=1
-N=${FRAMES:-$(python -c "import json;print(max(s['f_out'] for s in json.load(open('shots.json'))))")}
+N=${FRAMES:-$("$PY" -c "import json;print(max(s['f_out'] for s in json.load(open('shots.json'))))")}
 rm -rf render; mkdir -p render out/rounds; date +%s > render/start.txt
 A=$(( N/3 )); B=$(( 2*N/3 ))
 for r in "0 $A" "$A $B" "$B $N"; do set -- $r; ./render.sh $1 $2 & done; wait

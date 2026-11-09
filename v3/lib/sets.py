@@ -212,7 +212,7 @@ def _gen_world():
 def ensure_textures():
     if not os.path.exists(os.path.join(TEX, 'canvas_i.png')):
         import subprocess, sys
-        subprocess.check_call(['python', os.path.abspath(__file__)])  # system python has PIL
+        subprocess.check_call([os.environ.get('PYTHON', 'python'), os.path.abspath(__file__)])  # system python has PIL (env.sh sets PYTHON)
 
 
 if __name__ == '__main__':
